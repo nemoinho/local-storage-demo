@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        html {font-size: 24px}
+        main { width: 55rem; margin: .7rem auto; background: #eee; border: 1px solid #333 }
+        h1 {text-align: center }
+        p { white-space:pre; background: #ddd; margin: .7rem 0; padding: .2rem 1rem; display: flex; justify-content: space-between;}
+        label {background: #fff; border: 1px solid #eee;}
+        label:focus-within { border-bottom: 2px solid blue; }
+        input {border: none; padding:0; margin: 0; outline: none; background: transparent; height: 1.3rem; line-height: 1.3rem; font-family: monospace; font-size: 1rem; padding-left: 1px; padding-right: 1px;}
+        button {background: #333; color: #fff; border: none; line-height: 1.3rem; height: 1.3rem; width: 2rem; font-size: .9rem;}
+        table {border-top: 1px solid #000; border-left: 1px solid #000; border-collapse: collapse; margin: .7rem auto; width: 90%;}
+        table td, table th {border: 1px solid #000;height:1.3rem; padding: .3rem .7rem; }
+        .dyn {position: absolute; top: -99999%; left: -999999%;}
+    </style>
+</head>
+<body>
+    <main>
+        <h1>localStorage</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Index</th>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <p><code>            localStorage.setItem(<label>'<input/>'</label>, <label>'<input/>'</label>);</code> <button>▶</button></p>
+        <p><code>console.log(localStorage.getItem(<label>'<input/>'</label>));</code> <button>▶</button></p>
+        <p><code>            localStorage.removeItem(<label>'<input/>'</label>);</code> <button>▶</button></p>
+        <p><code>            localStorage.clear();</code> <button>▶</button></p>
+        <p><code>            localStorage.key(<label><input type="number" min=0></label>);</code> <button>▶</button></p>
+        <pre></pre>
+    </main>
+    <script>
+        document.querySelector('p button').addEventListener('click', e => setItem(e.currentTarget.parentNode));
+        document.querySelectorAll('p:nth-of-type(1) input').forEach(input => input.addEventListener('keydown', e => {if(e.key === 'Enter')setItem(e.currentTarget.parentNode.parentNode)}));
+        document.querySelector('p+p button').addEventListener('click', e => getItem(e.currentTarget.parentNode));
+        document.querySelectorAll('p:nth-of-type(2) input').forEach(input => input.addEventListener('keydown', e => {if(e.key === 'Enter')getItem(e.currentTarget.parentNode.parentNode)}));
+        document.querySelector('p+p+p button').addEventListener('click', e => removeItem(e.currentTarget.parentNode));
+        document.querySelectorAll('p:nth-of-type(3) input').forEach(input => input.addEventListener('keydown', e => {if(e.key === 'Enter')removeItem(e.currentTarget.parentNode.parentNode)}));
+        document.querySelector('p+p+p+p button').addEventListener('click', e => clearStorage());
+        document.querySelector('p+p+p+p+p button').addEventListener('click', e => storageKey(e.currentTarget.parentNode));
+        document.querySelectorAll('p:nth-of-type(5) input').forEach(input => input.addEventListener('keydown', e => {if(e.key === 'Enter')storageKey(e.currentTarget.parentNode.parentNode)}));
+        document.querySelectorAll('input').forEach(input => {calcInputWidth(input); input.addEventListener('input', e => calcInputWidth(e.currentTarget))});
+        renderLocalStorage();
+
+        function calcInputWidth(input) {
+            const dynInput = document.createElement('span');
+            dynInput.classList.add('dyn');
+            dynInput.textContent = input.value;
+            input.parentNode.appendChild(dynInput);
+            input.style.width = (dynInput.offsetWidth + (input.type === 'number' ? 20 : 0)) + 'px';
+            requestAnimationFrame(() => input.parentNode.removeChild(dynInput));
+        }
+        function setItem(p) {
+            const inputs = p.querySelectorAll('input');
+            localStorage.setItem(inputs[0].value, inputs[1].value);
+            document.querySelector('pre').innerHTML += `>> localStorage.setItem('${inputs[0].value}', '${inputs[1].value}')\n`;
+            renderLocalStorage();
+        } 
+        function getItem(p) {
+            const input = p.querySelector('input');
+            const result = localStorage.getItem(input.value);
+            document.querySelector('pre').innerHTML += `>> localStorage.getItem('${input.value}')\n${result}\n`;
+            renderLocalStorage();
+        }
+        function removeItem(p) {
+            const input = p.querySelector('input');
+            localStorage.removeItem(input.value);
+            document.querySelector('pre').innerHTML += `>> localStorage.removeItem('${input.value}')\n`;
+            renderLocalStorage();
+        }
+        function clearStorage() {
+            localStorage.clear();
+            document.querySelector('pre').innerHTML += `>> localStorage.clear()\n`;
+            renderLocalStorage();
+        }
+        function storageKey(p) {
+            const input = p.querySelector('input');
+            const result = localStorage.key(input.value);
+            document.querySelector('pre').innerHTML += `>> localStorage.key(${input.value})\n${result}\n`;
+        }
+        function renderLocalStorage() {
+            const tbody = document.querySelector('tbody');
+            tbody.innerHTML = '';
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                tbody.innerHTML += `<tr><th>${i}</th><td>${key}</td><td>${value}</td></tr>`;
+            }
+        }
+    </script>
+</body>
+</html>
